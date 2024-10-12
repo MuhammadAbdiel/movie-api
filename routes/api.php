@@ -10,7 +10,7 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('login', 'login')->name('login');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'check.token.expiration'])->group(function () {
     Route::resource('movies', MovieController::class)->only(['index', 'store', 'show', 'update', 'destroy'])->names([
         'index' => 'movies.index',
         'store' => 'movies.store',

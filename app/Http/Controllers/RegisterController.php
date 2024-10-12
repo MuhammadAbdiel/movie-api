@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends BaseController
 {
+    private function createAccessToken($user, $message): JsonResponse
+    {
+        $success['token'] = $user->createToken('auth_token', ['*'], now()->addDay())->plainTextToken;
+        $success['name'] =  $user->name;
+        $success['email'] = $user->email;
+
+        return $this->sendResponse($success, $message);
+    }
+
     public function register(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -27,10 +36,8 @@ class RegisterController extends BaseController
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
-        $success['name'] =  $user->name;
 
-        return $this->sendResponse($success, 'User register successfully.');
+        return $this->createAccessToken($user, 'User registered successfully.');
     }
 
     public function login(Request $request): JsonResponse
@@ -38,12 +45,9 @@ class RegisterController extends BaseController
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = User::where('email', $request->email)->first();
 
-            $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['name'] =  $user->name;
-
-            return $this->sendResponse($success, 'User login successfully.');
+            return $this->createAccessToken($user, 'User login successfully.');
         } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+            return $this->sendError('Email or password is wrong.', ['error' => 'Email or password is wrong.'], 400);
         }
     }
 }
