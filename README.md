@@ -43,6 +43,12 @@ Run the migrations
 php artisan migrate:fresh --seed
 ```
 
+Create symlink for storage
+
+```bash
+php artisan storage:link
+```
+
 Start the server
 
 ```bash
